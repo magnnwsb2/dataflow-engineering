@@ -2,14 +2,14 @@
 
 **Feature:** 001-retail-sales-pipeline  
 **Version:** 0.1.0  
-**Status:** Planned — not started; requires approval of spec and plan  
+**Status:** Planned — business distribution approved; technical readiness checks remain  
 **Dataset:** 100,000 synthetic sales input rows  
 **Sources:** [spec.md](spec.md), [plan.md](plan.md), [constitution](../../.specify/memory/constitution.md)
 
 ## Execution rules
 
 - Tasks are ordered by dependencies. A task is complete only after its acceptance checks and documentation are committed.
-- Do not start implementation until the specification, plan, and open decisions are approved.
+- Do not start implementation until remaining technical readiness and security decisions are verified; the business scope and dataset category counts are approved.
 - Follow test-first where practical; tests must link to RF/RN/CA identifiers.
 - Use GitHub-hosted runners and ephemeral PostgreSQL only. Do not use external business data, cloud infrastructure, or self-hosted runners.
 - `[ ]` means pending; check a task only when its deliverable and evidence exist. This file is a plan, not a claim that code or workflows already exist.
@@ -17,8 +17,8 @@
 
 ## Phase 0 — Specification gate (blocking)
 
-- [ ] **T001** Review and approve `spec.md` and `plan.md`, including data contracts, money/date formats, conflict policy, PostgreSQL design, and GitHub Actions security. **Evidence:** documented approval/decision log. **Links:** P-004, RF-001–010.
-- [ ] **T002** Finalize and version a synthetic anomaly manifest for exactly 100,000 sales input rows: mutually exclusive counts for accepted unique, exact duplicates, invalid rows, and conflicting rows. Include fixed seed, generator version, row fingerprints, and expected reconciliation totals. **Evidence:** documented invariant `input = accepted + duplicate + invalid + conflict`. **Links:** RF-004/005/008, CA-002/003/007/009.
+- [ ] **T001** Record approval of `spec.md` and `plan.md` business scope and dataset counts; review remaining technical assumptions, money/date formats, conflict policy, PostgreSQL design, and GitHub Actions security. **Evidence:** documented approval/decision log. **Links:** P-004, RF-001–010.
+- [ ] **T002** Validate the approved synthetic anomaly manifest for exactly 100,000 sales input rows: 94,618 accepted unique, 3,006 exact duplicates, 1,176 invalid, and 1,200 conflicting rows (600 pairs). Include fixed seed, generator version, row fingerprints, and expected reconciliation totals. **Evidence:** documented invariant `input = accepted + duplicate + invalid + conflict`. **Links:** RF-004/005/008, CA-002/003/007/009.
 - [ ] **T003** Verify how to securely supply ephemeral PostgreSQL credentials to GitHub Actions service containers without hardcoded secrets; decide whether a GitHub Actions secret is needed and document setup. Confirm supported versions, action SHA pinning, dependency lock/pinning, and artifact retention. **Evidence:** ADR or plan update. **Links:** P-001/002/003, CA-010.
 
 **Gate:** No coding before T001–T003.
@@ -139,4 +139,4 @@ A task is complete when: its implementation or document is committed; linked tes
 
 ## Immediate next action
 
-Review and approve the draft specification and technical plan; finalize the anomaly manifest and secure GitHub Actions PostgreSQL credential strategy (T001–T003). Only then begin T004. **No pipeline implementation has started.**
+The business scope and anomaly category counts are approved and documented. Complete technical/security review (T001/T003) and verify the manifest through automated generation tests (T002). Only then begin T004. **No pipeline implementation has started.**
