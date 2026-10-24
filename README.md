@@ -1,81 +1,97 @@
 # DataFlow Engineering
 
-> Spec-Driven Data Engineering | NexaRetail (fictional retail company)
+**Spec-driven data engineering portfolio · NexaRetail (fictional)**
 
-A portfolio project to design and validate a reproducible retail data pipeline using **Spec-Driven Development (SDD)**. The project models data from five fictional retail branches, validates and transforms sales records, and produces trustworthy analytical reports.
+An end-to-end Python and PostgreSQL retail sales pipeline designed for **reproducibility, data quality, auditability, transactional integrity, and idempotent processing**. All business data is synthetic.
 
-> **Status: specification phase.** The pipeline, automated tests, and workflows are planned, not yet implemented. No performance or reliability claims are made at this stage.
+> **Verification status:** implementation and tests are committed; a successful PostgreSQL-backed GitHub Actions run has **not yet been verified**. The quantities below are acceptance targets, not measured production results.
 
-## Business problem
-
-NexaRetail receives sales and reference data from multiple branches with inconsistent formats, duplicated transactions, invalid product references, and incomplete records. The goal is to consolidate these sources into reliable sales metrics, while keeping rejected records and processing decisions auditable.
-
-## Planned MVP
-
-- Deterministic, synthetic datasets for branches, products, and sales
-- CSV ingestion and schema validation
-- Date, identifier, and monetary-value normalization
-- Duplicate detection, conflict handling, and rejection reports
-- Idempotent loads into an ephemeral PostgreSQL instance
-- Per-branch revenue, transaction counts, and average ticket
-- Automated tests, quality metrics, and sanitized execution logs
-- GitHub Actions orchestration and downloadable workflow artifacts
-
-## Planned architecture
+## Architecture
 
 ```text
-Synthetic CSV datasets
+Deterministic generator (Python, CSV)
         |
         v
-Ingestion -> Validation -> Normalization -> Quality checks
-                                            |
-                               +------------+------------+
-                               |                         |
-                          Valid records            Rejected records
-                               |                         |
-                               v                         v
-                    Ephemeral PostgreSQL         Quality report
-                               |
-                               v
-                     Analytical aggregation
-                               |
-                               v
-                    GitHub Actions artifacts
+Bronze: 100,000 synthetic sales input rows
+        |
+        v
+Silver: normalize / validate / deduplicate / reject conflicts
+        |                                |
+        v                                v
+PostgreSQL 16                       Row audit (CSV)
+dim_branch / dim_product                 |
+fact_sale (business-key PK)              v
+        |                          Quality summary (JSON)
+        v
+Gold: sales by branch (CSV)
+        |
+        v
+GitHub Actions artifacts + execution summary (JSON)
 ```
 
-All processing will run on **GitHub-hosted Actions runners**. PostgreSQL will be a temporary service container, not a persistent external database. Reports and sanitized logs will be stored as workflow artifacts subject to GitHub retention limits.
+PostgreSQL is an **ephemeral GitHub Actions service**, not an external managed database. The pipeline also performs a same-run replay to check idempotency.
 
-## Security and infrastructure constraints
+## Data contract
 
-- No hardcoded credentials or committed secrets
-- Runtime configuration through environment variables; GitHub Actions secrets for actual sensitive values
-- A tracked `.env.example` may document variable names, but a populated `.env` must never be committed
-- No third-party cloud services, self-hosted runners, or personally operated infrastructure
-- No external data APIs at runtime: the business data is entirely synthetic
-- Least-privilege GitHub Actions permissions and no sensitive values in logs
-- No assumption of persistent state across independent workflow runs
+| Sales disposition | Expected rows |
+| --- | ---: |
+| Accepted unique | 94,618 |
+| Exact duplicates | 3,006 |
+| Invalid | 1,176 |
+| Conflicting (both variants rejected) | 1,200 |
+| **Total input** | **100,000** |
 
-## SDD workflow
+Five fictional branches (`F001`–`F005`), 200 fictional products (`P0001`–`P0200`), fixed generator seed `20271024`. Monetary amounts are handled using Python `Decimal` and PostgreSQL `NUMERIC`, not floating-point arithmetic. A sale is uniquely identified by `(branch_id, sale_id)`.
 
-We will document requirements and acceptance criteria before implementation, then trace each task and test back to the approved specification.
+The intended database result is **94,618 fact rows on first load and zero additional rows on replay**. Actual results must be verified through a successful workflow run.
 
-| Phase | Deliverable | Status |
-| --- | --- | --- |
-| Business requirements | Initial project scope | Draft |
-| Constitution | Architecture and engineering principles | Planned |
-| Specification | Versioned requirements and acceptance criteria | Planned |
-| Technical plan | Data contracts, design, and trade-offs | Planned |
-| Tasks | Testable implementation tasks | Planned |
-| Implementation | Pipeline, tests, and GitHub Actions | Not started |
+## Implemented components
 
-## Technology choices (planned)
+- **Generation:** `src/dataflow/generation/synthetic.py` — deterministic CSVs and manifest with SHA-256 hashes.
+- **Quality:** `src/dataflow/quality/classify.py` and `audit.py` — row validation, classification and sanitized source-line audit.
+- **Storage:** `sql/001_initial_schema.sql` and `src/dataflow/storage/` — PostgreSQL schema, environment-based connection, transactional insert/replay.
+- **Analytics:** `src/dataflow/analytics/report.py` — per-branch sales count, BRL revenue and average ticket.
+- **Orchestration:** `src/dataflow/pipeline.py` and `src/dataflow/__main__.py`.
+- **Tests:** `tests/unit/` and `tests/integration/`.
+- **CI:** `.github/workflows/ci.yml`, `postgres-integration.yml` and `pipeline.yml`.
 
-Python, PostgreSQL, SQL, pytest, and GitHub Actions. Additional dependencies will be selected and justified in the technical plan; they are not requirements yet.
+## How to run
 
-## Repository
+Python 3.12 and access to PostgreSQL 16 are required for the full pipeline.
 
-This repository is intended as an educational and professional data engineering portfolio case study. **NexaRetail is fictional; no real customer, employee, or financial data is used.**
+```bash
+python -m pip install -e '.[test,postgres]'
+python -m pytest tests/unit -v
+python -m dataflow --workdir ./artifacts
+```
 
-## Current next step
+The database connection uses `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` and `DB_PASSWORD` environment variables. Never commit a populated `.env` file.
 
-Approve the SDD constitution and the first versioned specification before writing implementation code.
+**GitHub-hosted run:** set the repository Actions secret `CI_POSTGRES_PASSWORD`, then manually dispatch **NexaRetail end-to-end** from the Actions tab. The workflow provisions a temporary PostgreSQL service and publishes sanitized reports. The secret must be created by the repository owner and should never be shared in chat.
+
+See [Execution and verification runbook](docs/runbook.md).
+
+## Expected artifacts
+
+| Artifact | Purpose |
+| --- | --- |
+| `row_audit.csv` | One sanitized audit record per input row |
+| `quality_summary.json` | Counts and reasons for rejected sales |
+| `sales_by_branch.csv` | Gold business metrics for five branches |
+| `run_summary.json` | Load, replay, persisted count and manifest hashes |
+
+GitHub Actions artifacts have a configured retention of 14 days.
+
+## Engineering decisions
+
+- **No real personal or customer data:** NexaRetail and all sales are fictional.
+- **No secrets in source:** use repository Actions secrets and environment variables.
+- **No external data platform:** execution stays within GitHub-hosted runners.
+- **Fail closed on conflicts:** mismatching payloads with an existing sale key abort the transaction.
+- **Traceability:** [constitution](.specify/memory/constitution.md), [requirements](specs/001-retail-sales-pipeline/spec.md), [technical plan](specs/001-retail-sales-pipeline/plan.md), [task breakdown](specs/001-retail-sales-pipeline/tasks.md), [data manifest](specs/001-retail-sales-pipeline/data-manifest.md) and [security ADR](docs/adr/001-github-actions-postgres-security.md).
+
+## Validation and project status
+
+The repository contains executable code and tests, but **passing CI and integration results are still pending confirmation**. This README deliberately does not claim measured throughput, reliability, or a successful 100,000-row database load.
+
+The next milestone is a successful PostgreSQL integration and end-to-end workflow run, followed by inspection of its generated artifacts.
