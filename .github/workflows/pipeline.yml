@@ -22,7 +22,7 @@ jobs:
         env:
           POSTGRES_USER: dataflow_ci
           POSTGRES_DB: dataflow_pipeline
-          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD || 'temporary-ci-postgres-only' }}
         ports:
           - 5432:5432
         options: >-
@@ -31,10 +31,10 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - name: Check required secret
+      - name: Check database password configuration
         run: |
           if [ -z "$DB_PASSWORD" ]; then
-            echo "::error::CI_POSTGRES_PASSWORD is not configured"
+            echo "::error::Configure CI_POSTGRES_PASSWORD as an Actions secret to connect to PostgreSQL."
             exit 1
           fi
       - name: Checkout
