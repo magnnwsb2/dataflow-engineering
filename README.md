@@ -4,7 +4,7 @@
 
 An end-to-end Python and PostgreSQL retail sales pipeline designed for **reproducibility, data quality, auditability, transactional integrity, and idempotent processing**. All business data is synthetic.
 
-> **Verification status:** implementation and tests are committed; a successful PostgreSQL-backed GitHub Actions run has **not yet been verified**. The quantities below are acceptance targets, not measured production results.
+> **Verification status:** end-to-end GitHub Actions run **#2 passed** on 2026-10-24 (commit `e7f7931`), and its exported reports were independently inspected. The separate PostgreSQL integration workflow remains to be verified. See [validated execution results](docs/validation-results.md).
 
 ## Architecture
 
@@ -43,7 +43,7 @@ PostgreSQL is an **ephemeral GitHub Actions service**, not an external managed d
 
 Five fictional branches (`F001`–`F005`), 200 fictional products (`P0001`–`P0200`), fixed generator seed `20271024`. Monetary amounts are handled using Python `Decimal` and PostgreSQL `NUMERIC`, not floating-point arithmetic. A sale is uniquely identified by `(branch_id, sale_id)`.
 
-The intended database result is **94,618 fact rows on first load and zero additional rows on replay**. Actual results must be verified through a successful workflow run.
+**Verified in end-to-end run #2:** 94,618 fact rows on first load, zero additional rows on replay, and 94,618 persisted sales. See [execution evidence](docs/validation-results.md).
 
 ## Implemented components
 
@@ -92,6 +92,6 @@ GitHub Actions artifacts have a configured retention of 14 days.
 
 ## Validation and project status
 
-The repository contains executable code and tests, but **passing CI and integration results are still pending confirmation**. This README deliberately does not claim measured throughput, reliability, or a successful 100,000-row database load.
+**End-to-end homologation passed:** [NexaRetail end-to-end workflow](https://github.com/magnnwsb2/dataflow-engineering/actions/workflows/pipeline.yml), run #2, commit `e7f7931`, completed successfully in 2m 07s. Its artifact contains 100,000 audited sales rows, 94,618 accepted sales, 0 replay inserts and **R$ 532,074,093.20 in fictional revenue** across five branches. The JUnit artifact reports **11 unit tests passed, 0 failed**.
 
-The next milestone is a successful PostgreSQL integration and end-to-end workflow run, followed by inspection of its generated artifacts.
+Detailed branch results, quality breakdown and scope limitations are recorded in [verified execution results](docs/validation-results.md). The separate PostgreSQL integration suite has **not yet been confirmed as passing**. Workflow duration is not a benchmark of processing throughput.
