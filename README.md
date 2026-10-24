@@ -4,7 +4,7 @@
 
 An end-to-end Python and PostgreSQL retail sales pipeline designed for **reproducibility, data quality, auditability, transactional integrity, and idempotent processing**. All business data is synthetic.
 
-> **Verification status:** end-to-end GitHub Actions run **#2 passed** on 2026-10-24 (commit `e7f7931`), and its exported reports were independently inspected. The separate PostgreSQL integration workflow remains to be verified. See [validated execution results](docs/validation-results.md).
+> **Verification status:** end-to-end GitHub Actions run **#2 passed** on 2026-10-24 (commit `e7f7931`), and its exported reports were independently inspected. The separate PostgreSQL integration workflow #1 also passed (commit `3e7e961`, 3m 40s). See [validated execution results](docs/validation-results.md).
 
 ## Architecture
 
@@ -94,4 +94,4 @@ GitHub Actions artifacts have a configured retention of 14 days.
 
 **End-to-end homologation passed:** [NexaRetail end-to-end workflow](https://github.com/magnnwsb2/dataflow-engineering/actions/workflows/pipeline.yml), run #2, commit `e7f7931`, completed successfully in 2m 07s. Its artifact contains 100,000 audited sales rows, 94,618 accepted sales, 0 replay inserts and **R$ 532,074,093.20 in fictional revenue** across five branches. The JUnit artifact reports **11 unit tests passed, 0 failed**.
 
-Detailed branch results, quality breakdown and scope limitations are recorded in [verified execution results](docs/validation-results.md). The separate PostgreSQL integration suite has **not yet been confirmed as passing**. Workflow duration is not a benchmark of processing throughput.
+Detailed branch results, quality breakdown and scope limitations are recorded in [verified execution results](docs/validation-results.md). The separate **PostgreSQL integration #1** workflow also completed with **Success** (commit `3e7e961`, duration 3m 40s). Its exact test count has not yet been independently reconciled from the JUnit artifact. Workflow duration is not a benchmark of processing throughput.
