@@ -1,15 +1,15 @@
 # Technical Implementation Plan — NexaRetail Retail Sales Pipeline
 
 **Feature:** 001-retail-sales-pipeline  
-**Version:** 0.1.0  
-**Status:** Proposed technical baseline — awaiting review  
+**Version:** 0.2.0  
+**Status:** Business scope and 100,000-row distribution approved; technical security verification pending  
 **Target scale:** 100,000 synthetic sales input rows  
 **Constitution:** [../../.specify/memory/constitution.md](../../.specify/memory/constitution.md)  
 **Specification:** [spec.md](spec.md)
 
 ## 1. Summary and scope
 
-Design a deterministic batch data engineering pipeline for five fictional retail branches and 200 fictional products. Generate exactly 100,000 sales CSV *input rows*, including controlled anomalies; ingest, validate, normalize, deduplicate, load valid records into ephemeral PostgreSQL, and publish quality evidence and branch-level analytics as GitHub Actions artifacts. Accepted sale count is not assumed to be 100,000.
+Design a deterministic batch data engineering pipeline for five fictional retail branches and 200 fictional products. Generate exactly 100,000 sales CSV *input rows*, including controlled anomalies; ingest, validate, normalize, deduplicate, load valid records into ephemeral PostgreSQL, and publish quality evidence and branch-level analytics as GitHub Actions artifacts. The approved distribution is **94,618 accepted unique, 3,006 exact duplicates, 1,176 invalid, and 1,200 conflicting input rows** (600 two-row conflict groups); total **100,000**. These are acceptance targets, not observed pipeline outputs. See [data-manifest.md](data-manifest.md).
 
 No implementation code or workflow YAML is included in this planning document.
 
@@ -92,7 +92,7 @@ Generate exactly 200 distinct products, `P0001` through `P0200`.
 
 **Row grain:** one sale = one product transaction, not an invoice with multiple items. Each valid row must satisfy `total_amount = quantity * unit_price` exactly at two-decimal precision. Discounts, returns, taxes, and refunds are out of scope.
 
-**Synthetic dataset:** 100,000 sales input rows across five branches, with fixed seed (proposed `20271024`) and an explicit generator version. The anomaly mix (invalid rows, exact duplicates, conflicting keys) must be fixed in a versioned fixture manifest before tests assert exact counts. Do not assert 100,000 accepted sales.
+**Synthetic dataset:** 100,000 sales input rows across five branches, with fixed seed (proposed `20271024`) and an explicit generator version. The approved anomaly mix is fixed in [data-manifest.md](data-manifest.md): 94,618 accepted, 3,006 duplicates, 1,176 invalid, and 1,200 conflicts. Test exact counts against the generated fixture manifest. Do not assert 100,000 accepted sales.
 
 ## 6. Proposed PostgreSQL model
 
@@ -246,11 +246,11 @@ Only `plan.md` is being created at this stage; paths above are proposed future d
 
 ## 14. Decision log and pending approvals
 
-**Approved:** fictional retail domain, GitHub-only hosted execution, ephemeral PostgreSQL, Actions artifacts, environment-variable configuration, 100,000 synthetic sales input rows, specification-first development.
+**Approved:** fictional retail domain, GitHub-only hosted execution, ephemeral PostgreSQL, Actions artifacts, environment-variable configuration, 100,000 synthetic sales input rows, the precise approved category counts (94,618 / 3,006 / 1,176 / 1,200), specification-first development.
 
 **Proposed in this plan:** five branches, 200 products, Python 3.12, PostgreSQL 16, psycopg 3, standard-library CSV/Decimal, two allowed date formats, two allowed monetary formats, 14-day artifact retention, fixed generator seed 20271024, conflict-group rejection, manual pipeline dispatch as default.
 
-**Must be completed before coding:** approve the technical plan; create tasks.md with dependency ordering and acceptance mapping; define exact anomaly manifest with expected counts; verify secure PostgreSQL service authentication strategy in GitHub Actions; pin dependency versions and workflow actions.
+**Before coding:** tasks.md exists and the category-count manifest is approved; complete the security feasibility check for PostgreSQL service authentication, pin dependency versions and workflow actions, and verify remaining technical assumptions. Generated data and tests have not yet been executed.
 
 ## 15. Exit criteria for planning
 
