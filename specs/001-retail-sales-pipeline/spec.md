@@ -1,8 +1,8 @@
 # Feature Specification: NexaRetail Retail Sales Data Pipeline
 
 **Feature ID:** 001-retail-sales-pipeline  
-**Version:** 0.1.0  
-**Status:** Draft — pending approval  
+**Version:** 0.2.0  
+**Status:** Approved business scope and distribution; implementation not started  
 **Project:** DataFlow Engineering  
 **Method:** Spec-Driven Development (SDD)
 
@@ -13,6 +13,8 @@ NexaRetail is a fictional retailer with five branches. Sales, products, and bran
 ## 2. Goal
 
 Provide a deterministic, auditable, GitHub-hosted pipeline that ingests synthetic CSV files, validates and normalizes records, loads accepted data into ephemeral PostgreSQL, and exports branch-level analytics plus quality evidence as GitHub Actions artifacts.
+
+**Approved synthetic sales distribution:** exactly 100,000 input rows: **94,618 accepted unique**, **3,006 exact duplicate**, **1,176 invalid**, **1,200 conflicting** (600 pairs). These are expected acceptance targets, not observed results. See [data-manifest.md](data-manifest.md).
 
 ## 3. MVP scope
 
@@ -91,10 +93,10 @@ All mandatory acceptance criteria pass; no duplicate accepted sale keys; every r
 
 ## 10. Open questions (not approved assumptions)
 
-1. Which synthetic dataset volume is approved (1,000 / 10,000 / 100,000 sales)?
+1. **Resolved:** 100,000 sales input rows, with the approved category counts in the data manifest.
 2. Which source date formats and BRL amount formats will be accepted?
 3. What exact CSV schemas, null rules, and rejection reason codes will be used?
 4. What are the workflow artifact retention and package dependency pinning policies?
 5. How will partial failure be injected and demonstrated reproducibly?
 
-These must be resolved in the technical plan before implementation.
+The technical plan proposes answers to questions 2–5. Verify outstanding security and dependency decisions before implementation.
