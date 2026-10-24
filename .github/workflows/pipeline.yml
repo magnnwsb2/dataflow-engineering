@@ -22,7 +22,7 @@ jobs:
         env:
           POSTGRES_USER: dataflow_ci
           POSTGRES_DB: dataflow_pipeline
-          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD || 'temporary-ci-postgres-only' }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
