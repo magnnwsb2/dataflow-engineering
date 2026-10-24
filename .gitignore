@@ -1,0 +1,77 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.prof
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials.json
+
+# Local databases, dumps, and temporary files
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+*.dump
+*.backup
+tmp/
+temp/
+.cache/
+*.tmp
+*.bak
+
+# Generated data, logs, and artifacts
+logs/
+*.log
+artifacts/
+reports/generated/
+data/raw/generated/
+data/processed/
+data/output/
+*.parquet
+
+# Editor and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Keep synthetic sample data and SDD docs versioned.
+# Do not ignore specs/, docs/, tests/, data/sample/, or .github/.
