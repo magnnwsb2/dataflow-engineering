@@ -57,8 +57,14 @@ The uploaded `unit-tests.xml` reports **11 tests, 0 failures, 0 errors,
 0 skipped**. The end-to-end workflow also completed its independent report
 verification successfully.
 
-The separate `PostgreSQL integration` workflow has **not** been verified
-as passing. This acceptance result does not establish multi-run persistence,
+The separate **PostgreSQL integration #1** workflow completed with GitHub Actions
+status **Success** on branch `main`, commit `3e7e961`, in **3m 40s**.
+One artifact was published. The exact number of integration test cases has
+not yet been independently checked against its JUnit report.
+
+[PostgreSQL integration workflow](https://github.com/magnnwsb2/dataflow-engineering/actions/workflows/postgres-integration.yml)
+
+These successful executions do not establish multi-run persistence,
 production-scale throughput, or security certification.
 
 The source dataset is entirely fictional; revenue is synthetic and must not
