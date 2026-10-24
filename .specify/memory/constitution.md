@@ -47,6 +47,6 @@ This constitution takes precedence over lower-level plans and tasks. Changes req
 
 ## Open decisions
 
-- Synthetic dataset volume: 1,000 / 10,000 / 100,000 transactions (10,000 recommended; not yet approved).
+- Synthetic dataset volume: **100,000 input sales rows approved**, distributed as 94,618 accepted unique, 3,006 exact duplicate, 1,176 invalid, and 1,200 conflicting rows; see [data manifest](../../specs/001-retail-sales-pipeline/data-manifest.md).
 - Exact CSV field contracts, supported date formats, monetary precision, and analytical schema: technical planning.
 - GitHub Actions artifact retention period and dependency pinning: technical planning.
