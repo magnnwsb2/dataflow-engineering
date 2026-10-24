@@ -12,6 +12,8 @@ from dataflow.storage.schema import apply_schema
 def db():
     with connect_from_env() as connection:
         apply_schema(connection)
+        with connection.transaction():
+            connection.execute("TRUNCATE fact_sale, rejected_row, pipeline_run, dim_product, dim_branch CASCADE")
         yield connection
 
 
