@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=75,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dataflow-engineering"
+version = "0.1.0"
+description = "Spec-driven synthetic retail data engineering portfolio"
+requires-python = ">=3.12,<3.14"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+postgres = ["psycopg[binary]>=3.2,<4"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
